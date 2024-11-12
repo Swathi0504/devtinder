@@ -2,18 +2,19 @@ const express = require("express")
 
 const app = express();
 
-app.use("/test",(req,res)=>{
-    res.send("test page");
-})
+const {auth} = require("./middlewares/auth")
 
-app.use("/",(req,res)=>{
-    res.send("Welcome");
-})
+app.all("/admin",auth)
 
-app.use("/hello",(req,res)=>{
-    res.send("Hello page");
+app.get("/admin/adduser",(req,res)=>{
+    res.send("User authorised");
+})
+app.delete("/admin/deleteuser",(req,res)=>{
+    res.send("User removed");
 })
 
 app.listen(3000,()=>{
     console.log("Server is successfully listening");
 });
+
+
