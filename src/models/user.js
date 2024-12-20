@@ -1,6 +1,6 @@
 
 const mongoose = require("mongoose");
-
+const validator = require('validator');
 const userSchema = new mongoose.Schema(
     {
     firstName : {
@@ -17,11 +17,21 @@ const userSchema = new mongoose.Schema(
         required: true,
         unique: true,
         lowercase: true,
-        trim: true
+        trim: true,
+        validate : (value) => {
+            if(!validator.isEmail(value)) {
+                throw new Error("Invalid email address! "+value);
+            }
+        }
     },
     password : {
         type : String,
         required: true,
+        validate : (value) => {
+            if(!validator.isStrongPassword(value)) {
+                throw new Error("Password is not strong!!");
+            }
+        }
     },
     age : {
         type : Number,
@@ -39,7 +49,12 @@ const userSchema = new mongoose.Schema(
     },
     photoUrl : {
         type : String,
-        default:"https://pinnacle.works/wp-content/uploads/2022/06/dummy-image.jpg"
+        default:"https://pinnacle.works/wp-content/uploads/2022/06/dummy-image.jpg",
+        validate : (value) => {
+            if(!validator.isURL(value)) {
+                throw new Error("Invalid url "+value);
+            }
+        }
     },
     about : {
         type : String,

@@ -7,17 +7,13 @@ const app = express();
 app.use(express.json())
 
 app.post("/signup", async (req,res)=>{
-
-   console.log(req.body);
-    
-   const user = new User(req.body)
-    
+   const user = new User(req.body)    
    try {
         await user.save();
         res.send("User Successfully Saved");
    }
    catch(err) {
-       res.send(err);
+       res.send(err.message);
    }
 })
 
