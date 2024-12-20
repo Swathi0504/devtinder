@@ -46,7 +46,8 @@ const userSchema = new mongoose.Schema(
         default: "This is a default about for the user"
     },
     skills : {
-        type : [String]
+        type : [String],
+        maxLength : 10
     }
 },
 {
