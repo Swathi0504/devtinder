@@ -1,86 +1,19 @@
 const connectDb=require("./config/database")
 const express = require("express")
-const User = require("./models/user")
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
+app.use(cookieParser());
 
-app.post("/signup", async (req,res)=>{
-   const user = new User(req.body)    
-   try {
-        await user.save();
-        res.send("User Successfully Saved");
-   }
-   catch(err) {
-       res.send(err.message);
-   }
-})
+const authRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
+const requestRouter = require('./routes/request');
 
-
-//getting user data by email address\
-app.get("/finduser",async (req,res)=>{
-    try {
-        const user = await User.find({"emailId": req.body.emailId});
-        if(user.length===0) {
-            res.status(404).send("User not found");
-        }
-        res.send(user);
-    }
-    catch(err) {
-       res.status(400).send("Something went wrong");
-    }
-})
-
-//getting all users
-app.get("/feed",async (req,res)=>{
-     try {
-        const users = await User.find({});
-        res.send(users);
-     }
-     catch(err) {
-        res.status(404).send("Something went wrong");
-     }
-})
-
-app.delete("/user",async(req,res)=>{
-    try {
-       const user=await User.findByIdAndDelete({_id:req.body.id});
-       res.send("User deleted successfully")
-    }catch(err) {
-       res.status(400).send("Unable to delete"); 
-    }
-})
-
-app.patch("/user/:id",async(req,res)=>{
-    const data = req.body;
-    const id = req.params?.id;
-    try {
-       
-       const ALLOWED_UPDATES = ["firstName","lastName","password","age","gender","photoUrl","about","skills"];
-
-       const isupdateAllowed=Object.keys(data).every((k)=>
-        ALLOWED_UPDATES.includes(k)
-       );
-
-       if(!isupdateAllowed){
-        throw new Error("Update not allowed");
-       }
-
-       if(data.skills.length>10) {
-        throw new Error("Skills cannot be more than 10");
-       }
-
-       const user=await User.findByIdAndUpdate({_id:id},data,{
-        returnDocument:"before",
-        runValidators:"true"
-       });
-       console.log(user);
-       res.send("User updated successfully")
-    }catch(err) {
-       res.status(400).send("Something went wrong. "+ err.message); 
-    }
-})
+app.use('/',authRouter);
+app.use('/',profileRouter);
+app.use('/',requestRouter);
 
 connectDb().then(()=>{
     console.log("Database connection established");
