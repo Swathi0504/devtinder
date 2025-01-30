@@ -6,7 +6,7 @@ const auth = async (req,res,next)=>{
    try {
     const cookies = req.cookies;
     if(!cookies) {
-        throw new Error("Invalid token");
+        throw new Error("Invalid token!!");
     }
     const {token} = cookies;
     const decodedMessage= jwt.verify(token,"DEVTINDER@80722");
