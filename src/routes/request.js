@@ -55,6 +55,43 @@ requestRouter.post("/request/send/:status/:toUserId",
    }
 })
 
+requestRouter.post("/request/review/:status/:requestId",
+   auth,
+   async (req,res)=>{
+   try {
+      const loggedInuser = req.user;
+      const allowedStatus = ["accepted","ignored"];
+      const {status,requestId} = req.params;
+
+      if(!allowedStatus.includes(status))  {
+         return res.status(400).json({message : "Invalid status type"});
+      }
+
+      const connectionRequest = await ConnectionRequest.findOne({
+         _id : requestId,
+         toUserId : loggedInuser._id,
+         status : "interested"
+      });
+
+      if(!connectionRequest) {
+         return res.status(404).send("Connection request not found");
+      }
+
+      connectionRequest.status = status;
+
+      const data = await connectionRequest.save();
+
+      res.status(200).json({
+         message : "Connection request accepted suuccessfully",
+         userdetails : data
+      })
+
+   }
+   catch(err) {
+       
+   }
+})
+
 requestRouter.post("/sendconnectionrequest",auth, async (req,res)=>{
     try {
         const user = req.body;
@@ -66,54 +103,5 @@ requestRouter.post("/sendconnectionrequest",auth, async (req,res)=>{
 })
 
 //getting all users
-requestRouter.get("/feed",async (req,res)=>{
-    try {
-       const users = await User.find({});
-       res.send(users);
-    }
-    catch(err) {
-       res.status(404).send("Something went wrong");
-    }
-})
 
-requestRouter.delete("/user",async(req,res)=>{
-    try {
-       const user=await User.findByIdAndDelete({_id:req.body.id});
-       res.send("User deleted successfully")
-    }catch(err) {
-       res.status(400).send("Unable to delete"); 
-    }
-})
-
-requestRouter.patch("/user/:id",async(req,res)=>{
-    const data = req.body;
-    const id = req.params?.id;
-    try {
-       
-       const ALLOWED_UPDATES = ["firstName","lastName","password","age","gender","photoUrl","about","skills"];
-
-       const isupdateAllowed=Object.keys(data).every((k)=>
-        ALLOWED_UPDATES.includes(k)
-       );
-
-       if(!isupdateAllowed){
-        throw new Error("Update not allowed");
-       }
-
-       if(data.skills.length>10) {
-        throw new Error("Skills cannot be more than 10");
-       }
-
-       const user=await User.findByIdAndUpdate({_id:id},data,{
-        returnDocument:"before",
-        runValidators:"true"
-       });
-       console.log(user);
-       res.send("User updated successfully")
-    }catch(err) {
-       res.status(400).send("Something went wrong. "+ err.message); 
-    }
-})
-
-
-module.exports = requestRouter;
+module.exports = requestRouter; 
