@@ -9,7 +9,7 @@ authRouter.post("/signup", async (req,res)=>{
     try {
          validateSignupData(req);
  
-         const {firstName,lastName,emailId,password,age,gender,photoUrl,about,skills} = req.body;
+         const {firstName,lastName,emailId,password} = req.body;
  
          const passwordHash = await bcrypt.hash(password,10)
  
@@ -18,16 +18,18 @@ authRouter.post("/signup", async (req,res)=>{
              lastName,
              emailId,
              password:passwordHash,
-             age,
-             gender,
-             photoUrl,
-             about,
-             skills
          }) 
-         await user.save();
-         res.send("User Successfully Saved");
+         const savedUser=await user.save();
+         const token = await savedUser.getJwt();
+ 
+         res.cookie("token",token,{
+            expires: new Date(Date.now()+8*3600000),
+         });
+         //console.log(savedUser);
+         res.send(savedUser);
     }
     catch(err) {
+        console.log(err);
         res.send(err.message);
     }
  })
@@ -48,8 +50,10 @@ authRouter.post("/login", async (req,res)=>{
           
          const token = await user.getJwt();
  
-         res.cookie("token",token)
-         res.send("User logged in successfully");
+         res.cookie("token",token,{
+            expires: new Date(Date.now()+8*3600000),
+         });
+         res.send(user);
      }
      catch(err) {
          res.status(400).send(err.message);

@@ -4,11 +4,11 @@ const jwt = require("jsonwebtoken");
 
 const auth = async (req,res,next)=>{
    try {
-    const cookies = req.cookies;
-    if(!cookies) {
-        throw new Error("Invalid token!!");
+   
+    const {token} = req.cookies;
+    if(!token) {
+        return res.status(401).send("Please login!")
     }
-    const {token} = cookies;
     const decodedMessage= jwt.verify(token,"DEVTINDER@80722");
     const {_id} = decodedMessage;
     const user = await User.findById(_id);

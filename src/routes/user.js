@@ -15,10 +15,7 @@ userRouter.get("/user/requests/received", auth, async(req,res)=>{
             status : "interested"
         }).populate("fromUserId",USER_SAFE_DATA);
 
-        res.json({
-            message:"Interests sent to you",
-            Interests_pending : connectionRequests
-        })
+        res.send(connectionRequests)
     }
     catch(err) {
         res.status(400).send(err.message);
@@ -58,7 +55,7 @@ userRouter.get("/users/feed",auth,async (req,res)=>{
        const loggedInuser = req.user;
 
        const page = parseInt(req.query.page)||1;
-       let limit = parseInt(req.query.limit)||1;
+       let limit = parseInt(req.query.limit)||50;
 
        limit = limit > 50 ? 50 : limit;
 
@@ -82,16 +79,20 @@ userRouter.get("/users/feed",auth,async (req,res)=>{
             hiddenUsersFromFeed.add(req.toUserId.toString());
         })
         const users = await User.find({
-            $and:[{_id : {$nin : Array.from(hiddenUsersFromFeed)},
+            $and:[
+                {
+                _id : {$nin : Array.from(hiddenUsersFromFeed)}},{
                 _id : {$ne : loggedInuser._id}
-        }]
+                }
+            ]
         }).select(USER_SAFE_DATA).skip(skip).limit(limit);
+      //  console.log(users);
         res.send(users)
     }
     catch(err) {
        res.status(404).send(err.message);
     }
 })
-
+ 
 
 module.exports = userRouter;

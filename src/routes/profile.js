@@ -4,7 +4,7 @@ const {validateEditProfileData} =require("../utils/validation");
 
 const profileRouter = express.Router();
 
-profileRouter.post("/profiles/view", auth ,async (req,res) => {
+profileRouter.get("/profile/view", auth ,async (req,res) => {
     try {
         const user = req.user;
         res.send(user);
@@ -14,7 +14,7 @@ profileRouter.post("/profiles/view", auth ,async (req,res) => {
     }
 })
 
-profileRouter.patch("/profiles/edit",auth, async (req,res)=>{
+profileRouter.patch("/profile/edit",auth, async (req,res)=>{
   try {
     if(!validateEditProfileData(req)){
       throw new Error("Invalid Edit Request");
@@ -23,7 +23,8 @@ profileRouter.patch("/profiles/edit",auth, async (req,res)=>{
     const loggedinuser = req.user;
      
     Object.keys(req.body).forEach((key)=>(loggedinuser[key]=req.body[key]));
-    loggedinuser.save();
+   
+    await loggedinuser.save();
     
     res.json(
     {
@@ -51,10 +52,11 @@ profileRouter.get("/finduser",async (req,res)=>{
     }
 })
 
-profileRouter.patch("/profiles/password",auth, async (req,res)=>{
+profileRouter.patch("/profile/password",auth, async (req,res)=>{
 
 })
 
 
 
 module.exports = profileRouter;
+ 

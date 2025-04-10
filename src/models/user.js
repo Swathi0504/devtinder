@@ -53,11 +53,11 @@ const userSchema = new mongoose.Schema(
     photoUrl : {
         type : String,
         default:"https://pinnacle.works/wp-content/uploads/2022/06/dummy-image.jpg",
-        validate : (value) => {
-            if(!validator.isURL(value)) {
-                throw new Error("Invalid url "+value);
-            }
-        }
+        // validate : (value) => {
+        //     if(!validator.isURL(value)) {
+        //         throw new Error("Invalid url "+value);
+        //     }
+        // }
     },
     about : {
         type : String,
